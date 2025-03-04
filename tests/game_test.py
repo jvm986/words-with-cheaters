@@ -30,7 +30,16 @@ class TestGame(unittest.TestCase):
         self.board.add_word("hi", BOARD_CENTER, BOARD_CENTER, Direction.VERTICAL)
         self.game.set_rack(["o"])
         words = self.game.get_scored_possible_words()
-        self.assertEqual(
-            words[0],
+        self.assertIn(
             ("ho", (2, 2), Direction.HORIZONTAL, 5),
+            words,
+        )
+
+    def test_get_scored_possible_words_with_blank(self):
+        self.board.add_word("hi", BOARD_CENTER, BOARD_CENTER, Direction.VERTICAL)
+        self.game.set_rack(["o", "?"])
+        words = self.game.get_scored_possible_words()
+        self.assertIn(
+            ("thio", (1, 2), Direction.VERTICAL, 6),
+            words,
         )

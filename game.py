@@ -86,7 +86,7 @@ class Game:
 
                 if self.is_board_valid(board_copy):
                     total_score = sum(
-                        self.board.get_word_score(w, r, c, direction)
+                        self.board.get_word_score(self.rack, w, r, c, direction)
                         for w, (r, c), d in new_words
                     )
 

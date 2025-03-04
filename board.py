@@ -1,5 +1,7 @@
+import copy
 import csv
 from enum import Enum
+from typing import List
 
 
 class Direction(Enum):
@@ -37,8 +39,8 @@ class Board:
     def default_letter_scores(self):
         return {
             "a": 1,
-            "b": 3,
-            "c": 3,
+            "b": 4,
+            "c": 4,
             "d": 2,
             "e": 1,
             "f": 4,
@@ -257,12 +259,15 @@ class Board:
             return 2
         return 1
 
-    def get_word_score(self, word: str, row: int, col: int, direction: Direction):
+    def get_word_score(
+        self, rack: List[str], word: str, row: int, col: int, direction: Direction
+    ):
         if not self.word_is_placable(word, row, col, direction):
             raise ValueError("Word is not placable")
 
         score = 0
         word_multiplier = 1
+        rack_copy = copy.copy(rack)
 
         if direction == Direction.HORIZONTAL:
             for i, letter in enumerate(word):
@@ -271,22 +276,38 @@ class Board:
                 letter_multiplier = self.letter_multiplier(row, col + i)
 
                 if cell == "-":
+                    if not letter in rack_copy:
+                        if not "?" in rack_copy:
+                            raise ValueError("Invalid placement")
+                        rack_copy.remove("?")
+                        continue
                     score += letter_score * letter_multiplier
                     word_multiplier *= self.word_multiplier(row, col + i)
-                else:
+                    rack_copy.remove(letter)
+                elif cell == letter:
                     score += letter_score
+                else:
+                    raise ValueError("Invalid placement")
 
         elif direction == Direction.VERTICAL:
             for i, letter in enumerate(word):
                 cell = self.get_cell(row + i, col)
-                letter_score = self.letter_score(letter)
+                letter_score = self.letter_scores[letter]
                 letter_multiplier = self.letter_multiplier(row + i, col)
 
                 if cell == "-":
+                    if not letter in rack_copy:
+                        if not "?" in rack_copy:
+                            raise ValueError("Invalid placement")
+                        rack_copy.remove("?")
+                        continue
                     score += letter_score * letter_multiplier
                     word_multiplier *= self.word_multiplier(row + i, col)
-                else:
+                    rack_copy.remove(letter)
+                elif cell == letter:
                     score += letter_score
+                else:
+                    raise ValueError("Invalid placement")
 
         else:
             raise ValueError("Invalid direction")

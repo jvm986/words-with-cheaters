@@ -31,20 +31,15 @@ if __name__ == "__main__":
     if not game.is_board_valid():
         raise ValueError("Board is not valid")
 
-    game.set_rack(
-        [
-            "o",
-            "i",
-            "u",
-            "e",
-            "e",
-            "s",
-            "a",
-        ]
-    )
+    game.set_rack(["u", "a", "l", "d", "u", "a", "?"])
 
     words = game.get_scored_possible_words()
-    logger.info(f"Adding: {words[0][0]} for {words[0][3]} points")
+    logger.info(f"Playing: {words[0][0]} for {words[0][3]} points")
     board.add_word(words[0][0], words[0][1][0], words[0][1][1], words[0][2])
     board.print_board()
-    board.save_board_to_file(BOARD_FILE)
+    user_input = input("Do you want to save the board to file? (y/n): ")
+    if user_input.lower() == "y":
+        board.save_board_to_file(BOARD_FILE)
+        logger.info("Board saved to file.")
+    else:
+        logger.info("Board not saved.")
