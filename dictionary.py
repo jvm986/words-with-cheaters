@@ -7,6 +7,7 @@ class TrieNode:
 class Dictionary:
     def __init__(self, filename=None):
         self.root = TrieNode()
+        self.word_length_buckets = {}
         if filename:
             self.load_from_file(filename)
 
@@ -23,6 +24,11 @@ class Dictionary:
             node = node.children[char]
         node.is_end_of_word = True
 
+        word_length = len(word)
+        if word_length not in self.word_length_buckets:
+            self.word_length_buckets[word_length] = []
+        self.word_length_buckets[word_length].append(word)
+
     def search(self, word):
         node = self.root
         for char in word:
@@ -31,10 +37,18 @@ class Dictionary:
             node = node.children[char]
         return node.is_end_of_word
 
-    def starts_with(self, prefix):
-        node = self.root
-        for char in prefix:
-            if char not in node.children:
+    def search_with_pattern(self, pattern):
+        pattern_length = len(pattern)
+        if pattern_length not in self.word_length_buckets:
+            return []
+        results = []
+        for word in self.word_length_buckets[pattern_length]:
+            if self._match_pattern(word, pattern.lower()):
+                results.append(word)
+        return results
+
+    def _match_pattern(self, word, pattern):
+        for w_char, p_char in zip(word, pattern):
+            if p_char != "-" and w_char != p_char:
                 return False
-            node = node.children[char]
-        return True  # Prefix exists
+        return True

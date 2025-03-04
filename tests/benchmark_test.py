@@ -1,7 +1,7 @@
 import time
 import unittest
 
-from board import Board, Direction
+from board import Board
 from dictionary import Dictionary
 from game import Game
 
@@ -33,5 +33,5 @@ class TestGameBenchmark(unittest.TestCase):
         elapsed_time = end_time - start_time
         print(f"Benchmark: get_scored_possible_words took {elapsed_time:.6f} seconds")
 
-        with open("tests/benchmark_result", "a") as file:
+        with open("tests/benchmark_result", "w") as file:
             file.write(f"{elapsed_time:.6f}")

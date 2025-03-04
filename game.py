@@ -103,26 +103,18 @@ class Game:
         if used_letters is None:
             used_letters = set()
 
-        for i, char in enumerate(r):
-            if char == "-":
-                for j, letter in enumerate(self.rack):
-                    if j in used_letters:
+        for word in self.dictionary.search_with_pattern("".join(r)):
+            rack_copy = copy.copy(self.rack)
+            for i, letter in enumerate(word):
+                if letter not in rack_copy and r[i] != letter:
+                    if "?" in rack_copy:
+                        rack_copy.remove("?")
                         continue
-
-                    r[i] = letter
-                    word_to_check = "".join(r).split("-")[0]
-
-                    if (
-                        len(word_to_check) == len(r)
-                        and word_to_check not in valid_words
-                    ):
-                        if self.dictionary.search(word_to_check):
-                            valid_words.add(word_to_check)
-
-                    if self.dictionary.starts_with(word_to_check):
-                        self.find_words_for_range(r, used_letters | {j}, valid_words)
-
-                    r[i] = "-"
+                    break
+                if r[i] != letter:
+                    rack_copy.remove(letter)
+                if i == len(word) - 1:
+                    valid_words.add(word)
 
         return valid_words
 

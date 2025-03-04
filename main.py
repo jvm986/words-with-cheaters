@@ -31,9 +31,20 @@ if __name__ == "__main__":
     if not game.is_board_valid():
         raise ValueError("Board is not valid")
 
-    game.set_rack(["b", "c", "r", "a", "t"])
+    game.set_rack(
+        [
+            "o",
+            "i",
+            "u",
+            "e",
+            "e",
+            "s",
+            "a",
+        ]
+    )
 
     words = game.get_scored_possible_words()
     logger.info(f"Adding: {words[0][0]} for {words[0][3]} points")
     board.add_word(words[0][0], words[0][1][0], words[0][1][1], words[0][2])
     board.print_board()
+    board.save_board_to_file(BOARD_FILE)
