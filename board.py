@@ -44,7 +44,7 @@ class Board:
             "d": 2,
             "e": 1,
             "f": 4,
-            "g": 2,
+            "g": 3,
             "h": 4,
             "i": 1,
             "j": 8,
@@ -314,7 +314,7 @@ class Board:
 
         score = score * word_multiplier
 
-        if len(word) == 7:
+        if len(rack_copy) == 0:
             score += 40
 
         return score
