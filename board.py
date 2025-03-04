@@ -312,4 +312,9 @@ class Board:
         else:
             raise ValueError("Invalid direction")
 
-        return score * word_multiplier
+        score = score * word_multiplier
+
+        if len(word) == 7:
+            score += 40
+
+        return score
