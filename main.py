@@ -36,14 +36,22 @@ if __name__ == "__main__":
     game.set_rack(RACK)
 
     words = game.get_scored_possible_words()
-    for word in words:
+    logger.info([{word[0]: word[3]} for word in words])
+
+    for i, word in enumerate(words):
         logger.info(f"{word[0]}: {word[3]} points")
-    board.add_word(words[0][0], words[0][1][0], words[0][1][1], words[0][2])
-    board.print_board()
-    logger.info(f"Added: {words[0][0]} for {words[0][3]} points")
-    user_input = input("Do you want to save the board to file? (y/n): ")
-    if user_input.lower() == "y":
-        board.save_board_to_file(BOARD_FILE)
-        logger.info("Board saved to file.")
-    else:
-        logger.info("Board not saved.")
+        board.add_word(word[0], word[1][0], word[1][1], word[2])
+        board.print_board()
+        logger.info(f"Added: {word[0]} for {word[3]} points")
+        user_input = input(
+            "Do you want to save the board to file? (y/n), type 'c' to cancel: "
+        )
+        if user_input.lower() == "y":
+            board.save_board_to_file(BOARD_FILE)
+            logger.info("Board saved to file.")
+            break
+        elif user_input.lower() == "c":
+            logger.info("Cancelled.")
+            break
+        else:
+            board.load_board_from_file(BOARD_FILE)
