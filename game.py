@@ -17,7 +17,6 @@ class Game:
         valid_words = set()
 
         for length in range(len(self.rack), 0, -1):
-            logger.debug(f"Checking words of length {length}")
             if self.board.board_is_empty():
                 logger.debug("Board is empty")
                 for word in self.find_words_for_range(["-" for _ in range(length)]):
