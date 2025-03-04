@@ -314,7 +314,7 @@ class Board:
 
         score = score * word_multiplier
 
-        if len(rack_copy) == 0:
+        if len(rack_copy) == 0 and len(rack) == 7:
             score += 40
 
         return score
