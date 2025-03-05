@@ -16,7 +16,7 @@ python3 main.py board.csv 'abcd?fg'
 
 The algorithm could be a lot faster but it generally solves for all possible words in <2 seconds for a 15x15 board with 7 tiles, including wild cards on an M2.
 
-The way it works is to check every valid range on the board (a valid range includes an intersection with another tile) for every length of word at and below the rack length as a pattern in the dictionary. It then checks if the rack can satisfy the resulting words before checking the whole board for validty and scoring the placement.
+The way it works is to check every valid series on the board (a valid series includes an intersection with another tile) for every length of word at and below the rack length as a pattern in the dictionary. It then checks if the rack can satisfy the resulting words before checking the whole board for validty and scoring the placement.
 
 ### TODO
 

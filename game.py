@@ -18,7 +18,7 @@ class Game:
 
         for length in range(len(self.rack), 0, -1):
             if self.board.board_is_empty():
-                for word in self.find_words_for_range(["-" for _ in range(length)]):
+                for word in self.find_words_for_series(["-" for _ in range(length)]):
                     valid_words.add(
                         (
                             word,
@@ -35,11 +35,11 @@ class Game:
                         if col + length <= self.board.board_dimension:
                             if col > 0 and self.board.get_cell(row, col - 1) != "-":
                                 continue
-                            r = self.board.get_range(
+                            r = self.board.get_series(
                                 row, col, length, Direction.HORIZONTAL
                             )
                             if len(r) > length:
-                                for word in self.find_words_for_range(r):
+                                for word in self.find_words_for_series(r):
                                     valid_words.add(
                                         (word, (row, col), Direction.HORIZONTAL)
                                     )
@@ -47,11 +47,11 @@ class Game:
                         if row + length <= self.board.board_dimension:
                             if row > 0 and self.board.get_cell(row - 1, col) != "-":
                                 continue
-                            r = self.board.get_range(
+                            r = self.board.get_series(
                                 row, col, length, Direction.VERTICAL
                             )
                             if len(r) > length:
-                                for word in self.find_words_for_range(r):
+                                for word in self.find_words_for_series(r):
                                     valid_words.add(
                                         (word, (row, col), Direction.VERTICAL)
                                     )
@@ -95,21 +95,18 @@ class Game:
 
         return sorted(scored_words, key=lambda x: x[3], reverse=True)
 
-    def find_words_for_range(self, r=[], used_letters=None, valid_words=None):
-        if valid_words is None:
-            valid_words = set()
-        if used_letters is None:
-            used_letters = set()
+    def find_words_for_series(self, series=[]):
+        valid_words = set()
 
-        for word in self.dictionary.search_with_pattern("".join(r)):
+        for word in self.dictionary.search_with_pattern("".join(series)):
             rack_copy = copy.copy(self.rack)
             for i, letter in enumerate(word):
-                if letter not in rack_copy and r[i] != letter:
+                if letter not in rack_copy and series[i] != letter:
                     if "?" in rack_copy:
                         rack_copy.remove("?")
                         continue
                     break
-                if r[i] != letter:
+                if series[i] != letter:
                     rack_copy.remove(letter)
                 if i == len(word) - 1:
                     valid_words.add(word)

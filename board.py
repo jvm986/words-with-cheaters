@@ -135,8 +135,8 @@ class Board:
 
         return words_with_indexes
 
-    def get_range(self, row: int, col: int, to_place: int, direction: Direction):
-        result = []
+    def get_series(self, row: int, col: int, to_place: int, direction: Direction):
+        series = []
         count = 0
 
         if direction == Direction.HORIZONTAL:
@@ -145,7 +145,7 @@ class Board:
                     cell = self.board[row][col + i]
                     if cell == "-" and count >= to_place:
                         break
-                    result.append(cell)
+                    series.append(cell)
                     if cell == "-":
                         count += 1
 
@@ -155,7 +155,7 @@ class Board:
                     cell = self.board[row + i][col]
                     if cell == "-" and count >= to_place:
                         break
-                    result.append(cell)
+                    series.append(cell)
                     if cell == "-":
                         count += 1
 
@@ -165,7 +165,7 @@ class Board:
         if count < to_place:
             return []
 
-        return result
+        return series
 
     def board_is_empty(self):
         for row in self.board:

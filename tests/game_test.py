@@ -19,11 +19,11 @@ class TestGame(unittest.TestCase):
     def test_game_initialization(self):
         self.assertEqual(self.game.rack, [])
 
-    def test_find_words_for_range(self):
+    def test_find_words_for_series(self):
         self.board.add_word("hi", BOARD_CENTER, BOARD_CENTER, Direction.VERTICAL)
         self.game.set_rack(["W", "O"])
-        r = self.board.get_range(2, 1, 2, Direction.HORIZONTAL)
-        valid_words = self.game.find_words_for_range(r)
+        r = self.board.get_series(2, 1, 2, Direction.HORIZONTAL)
+        valid_words = self.game.find_words_for_series(r)
         self.assertEqual(valid_words, {"who"})
 
     def test_get_scored_possible_words(self):

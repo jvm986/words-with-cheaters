@@ -23,13 +23,13 @@ class TestBoard(unittest.TestCase):
         self.board.add_word("hi", BOARD_CENTER, BOARD_CENTER, Direction.HORIZONTAL)
         self.assertEqual(self.board.get_words(), [("hi", (2, 2), Direction.HORIZONTAL)])
 
-    def test_get_range(self):
+    def test_get_series(self):
         self.board.add_word("hi", BOARD_CENTER, BOARD_CENTER, Direction.VERTICAL)
         self.assertEqual(
-            self.board.get_range(1, 2, 2, Direction.VERTICAL), ["-", "h", "i", "-"]
+            self.board.get_series(1, 2, 2, Direction.VERTICAL), ["-", "h", "i", "-"]
         )
         self.assertEqual(
-            self.board.get_range(2, 1, 2, Direction.HORIZONTAL), ["-", "h", "-"]
+            self.board.get_series(2, 1, 2, Direction.HORIZONTAL), ["-", "h", "-"]
         )
 
     def test_word_is_placable(self):
