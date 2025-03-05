@@ -21,6 +21,6 @@ The way it works is to check every valid range on the board (a valid range inclu
 ### TODO
 
 - Previously used wild cards should not count for points in any future moves. This will need to be encoded in the board state.
-- Parse a screenshot of the board and rack to get the board state and rack.
+- Parse a screenshot of the board and rack to get the board state and rack, this could also solve the above.
 - Serve the solver as an API, running this on a smaller machine might show that a optimized algorithm is necessary.
 - The dictionary does not align perfectly with wordfeud.
