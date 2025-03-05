@@ -23,3 +23,6 @@ jobs:
 
       - name: Run tests
         run: python -m unittest discover -v -s tests -p '*_test.py'
+
+      - name: Print Benchmark
+        run: cat tests/benchmark_result
