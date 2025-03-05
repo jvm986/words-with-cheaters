@@ -8,8 +8,8 @@ from game import Game
 BOARD_DIMENSION = 15
 BOARD_CENTER = 7
 DICTIONARY_FILE = "dictionary.txt"
-BOARD_FILE = "tests/fixtures/board_benchmark.csv"
-MULTIPLIERS_FILE = "tests/fixtures/multipliers_benchmark.csv"
+BOARD_FILE = "tests/fixtures/benchmark_board.csv"
+MULTIPLIERS_FILE = "tests/fixtures/benchmark_multipliers.csv"
 
 
 class TestGameBenchmark(unittest.TestCase):
