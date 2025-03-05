@@ -3,7 +3,6 @@ from board import Board, Direction
 
 BOARD_DIMENSION = 5
 BOARD_CENTER = 2
-BOARD_FILE = "tests/fixtures/board.csv"
 MULTIPLIERS_FILE = "tests/fixtures/multipliers.csv"
 
 
@@ -43,11 +42,12 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(self.board.get_cell(2, 3), "i")
 
     def test_get_word_score(self):
+        self.board.add_word("hi", BOARD_CENTER, BOARD_CENTER, Direction.HORIZONTAL)
         self.assertEqual(
             self.board.get_word_score(
-                "hi", BOARD_CENTER, BOARD_CENTER, Direction.HORIZONTAL
+                ["i"], "hi", BOARD_CENTER, BOARD_CENTER, Direction.VERTICAL
             ),
-            15,
+            5,
         )
 
 
