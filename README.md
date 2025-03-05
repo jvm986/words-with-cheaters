@@ -23,4 +23,8 @@ The way it works is to check every valid series on the board (a valid series inc
 - Previously used wild cards should not count for points in any future moves. This will need to be encoded in the board state.
 - Parse a screenshot of the board and rack to get the board state and rack, this could also solve the above.
 - Serve the solver as an API, running this on a smaller machine might show that a optimized algorithm is necessary.
-- The dictionary does not align perfectly with wordfeud.
+- Implement a strategy algorithm to consider:
+  - Word length (as there is a significant bonus to finishing as fast as possible).
+  - Availability of multipliers produced by the move.
+  - Holding high value tiles if their value isn't being maximized by multipliers.
+- The dictionary is not complete.
