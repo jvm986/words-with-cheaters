@@ -1,0 +1,48 @@
+name: Python Tests with Profiling
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          sudo apt update
+          sudo apt install -y tesseract-ocr
+
+      - name: Set up TESSDATA_PREFIX environment variable
+        run: echo "TESSDATA_PREFIX=$(pwd)/dataset" >> $GITHUB_ENV
+
+      - name: Run tests
+        run: python -m unittest discover -v -s tests -p '*_test.py'
+
+      - name: Run Profiler
+        run: python profile_main.py
+
+      - name: Upload profiling results
+        uses: actions/upload-artifact@v4
+        with:
+          name: profiling-results
+          path: |
+            profile_output.prof
+            profile_output.txt
+            profile_total_seconds.txt

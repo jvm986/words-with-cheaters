@@ -1,0 +1,13 @@
+__pycache__/
+.venv/
+.vscode/
+
+.DS_Store
+
+dataset/training/
+screenshots/*
+!screenshots/example
+screenshots/example/*.json
+
+profile_*.txt
+profile_*.prof
