@@ -93,10 +93,10 @@ class Parser:
         cropped_tile_image = self.crop_white_background(binarized_tile_image)
 
         initial_ocr = pytesseract.image_to_string(cropped_tile_image, config=ocr_config).strip()
-        if initial_ocr in ["TW", "DL", "DW", "TL", "MIDDLE"]:
+        if initial_ocr in ["TW", "DL", "DW", "TL"]:
             return (initial_ocr, None)
 
-        if initial_ocr in ["", " ", "_", "EMPTY"]:
+        if initial_ocr in ["", " ", "_"]:
             return ("?", 0)
 
         letter_image, score_image = self.crop_letter_and_score_images(cv2.bitwise_not(binarized_tile_image))

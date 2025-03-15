@@ -68,7 +68,7 @@ else:
 
 logging.info("Letter frequencies before saving:")
 for letter, count in letter_counts.items():
-    logging.info(f"  {letter}: {count}")
+    logging.info(f"{letter}: {count}")
 
 saved_counts = defaultdict(int)
 
@@ -80,9 +80,9 @@ def write_image_and_gt(image, text):
         return
 
     id = uuid.uuid4()
-    image_path = os.path.join(DATASET_DIR, f"{id}.png")
-    gt_text_path = os.path.join(DATASET_DIR, f"{id}.gt.txt")
-    box_path = os.path.join(DATASET_DIR, f"{id}.box")
+    image_path = os.path.join(DATASET_DIR, f"{text}_{id}.png")
+    gt_text_path = os.path.join(DATASET_DIR, f"{text}_{id}.gt.txt")
+    box_path = os.path.join(DATASET_DIR, f"{text}_{id}.box")
 
     cv2.imwrite(image_path, image)
 
