@@ -1,6 +1,6 @@
 # Words with Cheaters
 
-A wordfeud solver that uses a fine-tuned tesseract model to parse the board and rack from a screenshot and then solves for the highest scoring move.
+A wordfeud solver that uses a fine-tuned tesseract model to parse the board and rack from a screenshot and then solve for the highest scoring move.
 
 ### Requirements
 
