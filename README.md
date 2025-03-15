@@ -79,16 +79,10 @@ TESSDATA=../words-with-cheaters/dataset \
 GROUND_TRUTH_DIR=../words-with-cheaters/dataset/training
 ```
 
-Then copy the trained data to your tesseract data directory, e.g:
+And update the model in the repository:
 
 ```bash
-cp data/words-with-cheaters.traineddata /opt/homebrew/Cellar/tesseract/5.5.0/share/tessdata
-```
-
-And update the model in the repo (optional):
-
-```bash
-cp data/words-with-cheaters.traineddata ../words-with-cheaters/datasets/words-with-cheaters.traineddata
+cp data/words-with-cheaters.traineddata ../words-with-cheaters/datasets
 ```
 
 Finally, use your trained model to OCR the screenshots.

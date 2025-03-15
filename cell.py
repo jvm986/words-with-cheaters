@@ -1,4 +1,5 @@
 from enum import Enum
+import logging
 from typing import Optional
 
 from tile import Tile
@@ -69,11 +70,13 @@ class Cell:
 
     @classmethod
     def from_parsed_cell(cls, letter: str, score: int, row: int, col: int) -> "Cell":
-        if letter in ["" " ", "_", "EMPTY", "MIDDLE", None]:
+        if letter in ["", " ", "_", "Ø", None]:
+            if score != 0:
+                logging.warning(f"Empty tile has a score: {score}, row: {row}, col: {col}")
             return Cell(row, col)
         if letter in ["DL", "TL", "DW", "TW"]:
             return Cell(row, col, multiplier=Multiplier[letter])
-        return Cell(row, col, tile=Tile(letter, score))
+        return Cell(row, col, tile=Tile(letter[0], score))
 
     def get_letter_string(self):
         if self.tile:

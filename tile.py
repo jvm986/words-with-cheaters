@@ -1,7 +1,7 @@
 class Tile:
     def __init__(self, letter: str, score: int):
-        # if letter and len(letter) > 1:
-        #     raise ValueError("Letter must be a single character")
+        if letter and len(letter) > 1:
+            raise ValueError("Letter must be a single character")
         self.letter = letter
         self.score = score
 
