@@ -40,15 +40,19 @@ class Game:
 
         return valid_words
 
-    def is_word_bingo(self, word: Word) -> bool:
-        existing_tiles_count = 0
-        for cell in word.cells:
-            if self.board.get_cell(cell.row, cell.col).tile:
-                existing_tiles_count += 1
+    def count_placed_tiles(self, words: List[Word]) -> bool:
+        unique_cells = []
+        for word in words:
+            for cell in word.cells:
+                if cell not in unique_cells:
+                    unique_cells.append(cell)
 
-        placed_tiles_count = len(word.cells) - existing_tiles_count
+        placed_tiles_count = 0
+        for cell in unique_cells:
+            if not self.board.get_cell(cell.row, cell.col).tile:
+                placed_tiles_count += 1
 
-        return placed_tiles_count == 7
+        return placed_tiles_count
 
     def get_scored_possible_words(self) -> List[Tuple[List[Word], int]]:
         possible_words = self.get_possible_words()
@@ -71,7 +75,7 @@ class Game:
 
             for new_word in new_words:
                 total_score += new_word.get_score()
-                if self.is_word_bingo(new_word):
+                if self.count_placed_tiles([new_word]) == 7:
                     total_score += 40
 
             try:
@@ -79,7 +83,7 @@ class Game:
             except ValueError:
                 continue
 
-            scored_words.append((new_words, total_score))
+            scored_words.append((new_words, total_score, self.count_placed_tiles(new_words)))
 
         return sorted(scored_words, key=lambda x: x[1], reverse=True)
 
