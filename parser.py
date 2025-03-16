@@ -1,7 +1,7 @@
 from typing import List, Optional, Tuple
 import cv2
 import numpy as np
-import pytesseract  # type: ignore
+import pytesseract  # type: ignore[import-untyped]
 
 from board import Board
 from cell import Cell
