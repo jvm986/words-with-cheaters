@@ -1,8 +1,9 @@
 import logging
 import os
+from typing import List, Tuple
 import uuid
 from collections import Counter, defaultdict
-from parser import Parser
+from parser import CV2Image, Parser
 
 import cv2
 
@@ -14,8 +15,8 @@ SCREENSHOTS_DIR = "screenshots"
 DATASET_DIR = os.path.join("dataset", "training")
 parser = Parser()
 
-letter_counts = Counter()
-all_letters = []
+letter_counts: Counter[str] = Counter()
+all_letters: List[Tuple[CV2Image, str]] = []
 
 logging.info("Scanning screenshots to count letter occurrences...")
 
@@ -70,10 +71,10 @@ logging.info("Letter frequencies before saving:")
 for letter, count in letter_counts.items():
     logging.info(f"{letter}: {count}")
 
-saved_counts = defaultdict(int)
+saved_counts: defaultdict[str, int] = defaultdict(int)
 
 
-def write_image_and_gt(image, text):
+def write_image_and_gt(image: CV2Image, text: str) -> None:
     """Save the image and ground truth only if below the minimum threshold."""
     if saved_counts[text] >= min_letter_count:
         logging.debug(f"Skipping '{text}' (limit reached: {min_letter_count})")

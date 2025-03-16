@@ -1,23 +1,24 @@
 import json
+from typing import Any, List
 
 from tile import Tile
 
 
 class RackEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, Tile):
-            return obj.__dict__
-        return super().default(obj)
+    def default(self, o: Any) -> Any:
+        if isinstance(o, Tile):
+            return o.to_json()
+        return super().default(o)
 
 
 class Rack:
     def __init__(self, tiles: list[Tile]):
         self.tiles = tiles
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return " ".join([str(tile.letter) for tile in self.tiles])
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()
 
     @classmethod
@@ -31,7 +32,7 @@ class Rack:
 
         return cls([Tile(tile["letter"], tile["score"]) for tile in rack_data])
 
-    def save_rack_to_file(self, file_path: str):
+    def save_rack_to_file(self, file_path: str) -> None:
         with open(file_path, "w") as file:
             json.dump(
                 [tile.__dict__ for tile in self.tiles],
@@ -40,14 +41,14 @@ class Rack:
                 cls=RackEncoder,
             )
 
-    def get_letters(self):
+    def get_letters(self) -> List[str]:
         return [tile.letter for tile in self.tiles]
 
-    def get_scores(self):
+    def get_scores(self) -> List[int]:
         return [tile.score for tile in self.tiles]
 
-    def print_letters(self):
+    def print_letters(self) -> None:
         print(" ".join(self.get_letters()))
 
-    def print_scores(self):
+    def print_scores(self) -> None:
         print(" ".join(str(score) for score in self.get_scores()))

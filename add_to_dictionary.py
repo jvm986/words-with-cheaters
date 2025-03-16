@@ -3,18 +3,18 @@ import sys
 DICTIONARY_FILE = "dictionary.txt"
 
 
-def add_word_to_dictionary(word):
-    if not word.isalpha():
+def add_word_to_dictionary(new_word: str) -> None:
+    if not new_word.isalpha():
         print("Word must contain only letters")
         sys.exit(1)
 
-    word = word.upper()
+    word: str = new_word.upper()
 
     try:
         with open(DICTIONARY_FILE, "r") as f:
             words = set(f.read().splitlines())
     except FileNotFoundError:
-        words = set()
+        raise FileNotFoundError("Dictionary file not found. Please create a dictionary.txt file.")
 
     if word in words:
         print(f"'{word}' is already in the dictionary.")

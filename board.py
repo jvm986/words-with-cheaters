@@ -1,6 +1,6 @@
 import json
 from enum import Enum
-from typing import List
+from typing import Any, List, Optional
 
 from cell import Cell, Multiplier
 from tile import Tile
@@ -11,26 +11,23 @@ class Direction(Enum):
     HORIZONTAL = 1
     VERTICAL = 2
 
-    def to_json(self):
+    def to_json(self) -> str:
         return self.name
 
     @classmethod
-    def from_json(cls, name: str):
+    def from_json(cls, name: str) -> "Direction":
         return cls[name]
 
 
 class BoardEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, Enum):
-            return obj.name
-        if isinstance(obj, Cell):
-            return {
-                "row": obj.row,
-                "col": obj.col,
-                "tile": obj.tile.to_json() if obj.tile else None,
-                "multiplier": obj.multiplier,
-            }
-        return super().default(obj)
+    def default(self, o: Any) -> Any:
+        if isinstance(o, Enum):
+            return o.name
+        if isinstance(o, Tile):
+            return o.to_json()
+        if isinstance(o, Cell):
+            return o.to_json()
+        return super().default(o)
 
 
 class Board:
@@ -87,8 +84,8 @@ class Board:
         return cell.row == self.rows // 2 and cell.col == self.cols // 2 and cell.tile is None
 
     def get_words_from_series(self, series: List[Cell]) -> List[Word]:
-        words = []
-        current_word = None
+        words: List[Word] = []
+        current_word: Optional[List[Cell]] = None
 
         for cell in series:
             if cell.tile:
@@ -114,7 +111,7 @@ class Board:
     def get_board_words(self) -> List[Word]:
         self.validate_board()
 
-        words = []
+        words: List[Word] = []
 
         for row_idx in range(len(self.cells)):
             row = self.get_row(row_idx)
@@ -129,7 +126,7 @@ class Board:
         return words
 
     def get_series(self, row: int, col: int, to_place: int, direction: Direction) -> List[Cell]:
-        series = []
+        series: List[Cell] = []
         count = 0
 
         if direction == Direction.HORIZONTAL:
@@ -161,7 +158,7 @@ class Board:
         return series
 
     def get_empty_board_series(self, to_place: int) -> List[Cell]:
-        series = []
+        series: List[Cell] = []
         middle = self.rows // 2, self.cols // 2
 
         for i in range(to_place):
@@ -186,7 +183,7 @@ class Board:
         for cell in word.cells:
             board_cell = self.get_cell(cell.row, cell.col)
             if board_cell.tile is not None:
-                if board_cell.tile.letter != cell.tile.letter:
+                if not board_cell.tile or not cell.tile or board_cell.tile.letter != cell.tile.letter:
                     raise ValueError(f"Invalid cell placement {cell}")
 
         return self.cell_in_series_touches_tile(word.cells) or (
@@ -202,7 +199,7 @@ class Board:
             if board_cell.tile is None:
                 self.cells[cell.row][cell.col] = cell
 
-    def clone(self):
+    def clone(self) -> "Board":
         new_board = Board([[cell for cell in row] for row in self.cells])
         return new_board
 
@@ -230,7 +227,7 @@ class Board:
                 return True
         return False
 
-    def print_letters(self):
+    def print_letters(self) -> None:
         for row in self.cells:
             for cell in row:
                 if cell.tile:
@@ -240,7 +237,7 @@ class Board:
             print()
         print()
 
-    def print_scores(self):
+    def print_scores(self) -> None:
         for row in self.cells:
             for cell in row:
                 if cell.tile:
@@ -250,7 +247,7 @@ class Board:
             print()
         print()
 
-    def print_mutlipliers(self):
+    def print_mutlipliers(self) -> None:
         for row in self.cells:
             for cell in row:
                 if cell.multiplier:
