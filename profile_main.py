@@ -23,7 +23,7 @@ with open("profile_output.txt", "w") as stream:
 stats = pstats.Stats("profile_output.prof")
 total_time: int = stats.total_tt  # type: ignore
 
-if not isinstance(total_time, int):
+if not isinstance(total_time, float):
     raise TypeError("total_time is not an int.")
 
 with open("profile_total_seconds.txt", "w") as f:
