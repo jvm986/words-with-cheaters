@@ -17,8 +17,10 @@ class Game:
     def get_possible_words(self) -> List[Word]:
         valid_words = []
 
+        board_is_empty = self.board.is_board_empty()
+
         for series_length in range(len(self.rack.tiles), 0, -1):
-            if self.board.board_is_empty():
+            if board_is_empty:
                 for word in self.find_words_for_series(self.board.get_empty_board_series(series_length)):
                     valid_words.append(word)
             else:
@@ -58,10 +60,9 @@ class Game:
         possible_words = self.get_possible_words()
         scored_words = []
 
+        existing_words = self.board.get_board_words()
         for word in possible_words:
             board_copy = self.board.clone()
-
-            existing_words = board_copy.get_board_words()
 
             try:
                 board_copy.add_word(word)
