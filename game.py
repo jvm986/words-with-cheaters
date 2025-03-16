@@ -94,7 +94,8 @@ class Game:
 
             cells = []
             for i, letter in enumerate(word):
-                if letter not in rack_dict and series[i].get_letter_string() != letter:
+                series_letter_string = series[i].get_letter_string()
+                if letter not in rack_dict and series_letter_string != letter:
                     if "?" in rack_dict:
                         score = rack_dict.pop("?")
                         cells.append(
@@ -107,7 +108,7 @@ class Game:
                         )
                         continue
                     break
-                if series[i].get_letter_string() != letter:
+                if series_letter_string != letter:
                     score = rack_dict.pop(letter)
                     cells.append(
                         Cell(
