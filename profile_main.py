@@ -21,7 +21,7 @@ with open("profile_output.txt", "w") as stream:
     stats.print_stats()
 
 stats = pstats.Stats("profile_output.prof")
-total_time = stats.total_tt
+total_time: int = stats.total_tt  # type: ignore
 
 with open("profile_total_seconds.txt", "w") as f:
     f.write(str(total_time))

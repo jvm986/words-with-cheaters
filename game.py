@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from board import Board, Direction
 from cell import Cell
@@ -15,7 +15,7 @@ class Game:
         self.rack = rack
 
     def get_possible_words(self) -> List[Word]:
-        valid_words = []
+        valid_words: List[Word] = []
 
         for series_length in range(len(self.rack.tiles), 0, -1):
             if self.board.is_board_empty():
@@ -40,8 +40,8 @@ class Game:
 
         return valid_words
 
-    def count_placed_tiles(self, words: List[Word]) -> bool:
-        unique_cells = []
+    def count_placed_tiles(self, words: List[Word]) -> int:
+        unique_cells: List[Cell] = []
         for word in words:
             for cell in word.cells:
                 if cell not in unique_cells:
@@ -54,9 +54,9 @@ class Game:
 
         return placed_tiles_count
 
-    def get_scored_possible_words(self) -> List[Tuple[List[Word], int]]:
+    def get_scored_possible_words(self) -> List[Tuple[List[Word], int, int]]:
         possible_words = self.get_possible_words()
-        scored_words = []
+        scored_words: List[Tuple[List[Word], int, int]] = []
 
         existing_words = self.board.get_board_words()
         for word in possible_words:
@@ -87,12 +87,12 @@ class Game:
         return sorted(scored_words, key=lambda x: x[1], reverse=True)
 
     def find_words_for_series(self, series: List[Cell]) -> List[Word]:
-        valid_words = []
+        valid_words: List[Word] = []
 
         for word in self.dictionary.search_with_pattern("".join(str(cell) for cell in series)):
             rack_dict = {tile.letter: tile.score for tile in self.rack.tiles}
 
-            cells = []
+            cells: List[Cell] = []
             for i, letter in enumerate(word):
                 series_letter_string = series[i].get_letter_string()
                 if letter not in rack_dict and series_letter_string != letter:
@@ -125,7 +125,7 @@ class Game:
 
         return valid_words
 
-    def validate_board(self, board=None) -> None:
+    def validate_board(self, board: Optional[Board] = None) -> None:
         if board is None:
             board = self.board
 

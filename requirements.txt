@@ -1,5 +1,6 @@
 black==25.1.0
 click==8.1.8
+mypy==1.15.0
 mypy-extensions==1.0.0
 numpy==2.2.3
 opencv-python==4.11.0.86
@@ -8,3 +9,4 @@ pathspec==0.12.1
 pillow==11.1.0
 platformdirs==4.3.6
 pytesseract==0.3.13
+typing_extensions==4.12.2

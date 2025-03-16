@@ -32,6 +32,9 @@ jobs:
       - name: Set up TESSDATA_PREFIX environment variable
         run: echo "TESSDATA_PREFIX=$(pwd)/dataset" >> $GITHUB_ENV
 
+      - name: Run type checking
+        run: mypy --strict --ignore-missing-imports *.py
+
       - name: Run tests
         run: python -m unittest discover -v -s tests -p '*_test.py'
 

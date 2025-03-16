@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+from typing import Optional
 from parser import Parser
 
 from board import Board
@@ -17,7 +18,7 @@ parser = Parser()
 dictionary = Dictionary(DICTIONARY_FILE)
 
 
-def process(screenshot_name, model=None, solve=False, reparse=False):
+def process(screenshot_name: str, model: Optional[str] = None, solve: bool = False, reparse: bool = False) -> None:
     logging.info(f"Processing screenshot: {screenshot_name}")
 
     screenshot_path = os.path.join(SCREENSHOT_DIR, screenshot_name)
@@ -59,7 +60,7 @@ def process(screenshot_name, model=None, solve=False, reparse=False):
         rack.print_letters()
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Words With Friends Solver")
     parser.add_argument(
         "-s",
