@@ -18,7 +18,7 @@ class Game:
         valid_words = []
 
         for series_length in range(len(self.rack.tiles), 0, -1):
-            if self.board.board_is_empty():
+            if self.board.is_board_empty():
                 for word in self.find_words_for_series(self.board.get_empty_board_series(series_length)):
                     valid_words.append(word)
             else:
@@ -40,24 +40,27 @@ class Game:
 
         return valid_words
 
-    def is_word_bingo(self, word: Word) -> bool:
-        existing_tiles_count = 0
-        for cell in word.cells:
-            if self.board.get_cell(cell.row, cell.col).tile:
-                existing_tiles_count += 1
+    def count_placed_tiles(self, words: List[Word]) -> bool:
+        unique_cells = []
+        for word in words:
+            for cell in word.cells:
+                if cell not in unique_cells:
+                    unique_cells.append(cell)
 
-        placed_tiles_count = len(word.cells) - existing_tiles_count
+        placed_tiles_count = 0
+        for cell in unique_cells:
+            if not self.board.get_cell(cell.row, cell.col).tile:
+                placed_tiles_count += 1
 
-        return placed_tiles_count == 7
+        return placed_tiles_count
 
     def get_scored_possible_words(self) -> List[Tuple[List[Word], int]]:
         possible_words = self.get_possible_words()
         scored_words = []
 
+        existing_words = self.board.get_board_words()
         for word in possible_words:
             board_copy = self.board.clone()
-
-            existing_words = board_copy.get_board_words()
 
             try:
                 board_copy.add_word(word)
@@ -71,7 +74,7 @@ class Game:
 
             for new_word in new_words:
                 total_score += new_word.get_score()
-                if self.is_word_bingo(new_word):
+                if self.count_placed_tiles([new_word]) == 7:
                     total_score += 40
 
             try:
@@ -79,7 +82,7 @@ class Game:
             except ValueError:
                 continue
 
-            scored_words.append((new_words, total_score))
+            scored_words.append((new_words, total_score, self.count_placed_tiles(new_words)))
 
         return sorted(scored_words, key=lambda x: x[1], reverse=True)
 
@@ -87,29 +90,31 @@ class Game:
         valid_words = []
 
         for word in self.dictionary.search_with_pattern("".join(str(cell) for cell in series)):
-            rack_copy = Rack(self.rack.tiles.copy())
+            rack_dict = {tile.letter: tile.score for tile in self.rack.tiles}
+
             cells = []
             for i, letter in enumerate(word):
-                if letter not in rack_copy.get_letters() and series[i].get_letter_string() != letter:
-                    if "?" in rack_copy.get_letters():
-                        rack_tile = rack_copy.pop_tile("?")
+                series_letter_string = series[i].get_letter_string()
+                if letter not in rack_dict and series_letter_string != letter:
+                    if "?" in rack_dict:
+                        score = rack_dict.pop("?")
                         cells.append(
                             Cell(
                                 series[i].row,
                                 series[i].col,
-                                Tile(letter, rack_tile.score),
+                                Tile(letter, score),
                                 series[i].multiplier,
                             )
                         )
                         continue
                     break
-                if series[i].get_letter_string() != letter:
-                    rack_tile = rack_copy.pop_tile(letter)
+                if series_letter_string != letter:
+                    score = rack_dict.pop(letter)
                     cells.append(
                         Cell(
                             series[i].row,
                             series[i].col,
-                            Tile(letter, rack_tile.score),
+                            Tile(letter, score),
                             series[i].multiplier,
                         )
                     )

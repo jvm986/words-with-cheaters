@@ -26,18 +26,6 @@ class TestRack(unittest.TestCase):
         self.assertEqual(str(rack), "X Y")
         self.assertEqual(rack.get_letters(), ["X", "Y"])
 
-    def test_rack_pop_tile(self):
-        """Test removing a tile from the rack."""
-        tile = self.rack.pop_tile("B")
-        self.assertEqual(tile.letter, "B")
-        self.assertEqual(self.rack.get_letters(), ["A", "C"])
-
-    def test_rack_pop_tile_not_found(self):
-        """Test attempting to remove a tile that doesn't exist."""
-        tile = self.rack.pop_tile("Z")
-        self.assertIsNone(tile)
-        self.assertEqual(self.rack.get_letters(), ["A", "B", "C"])
-
     def test_rack_save_and_load_from_file(self):
         """Test saving and loading a rack from a file."""
         file_path = "test_rack.json"

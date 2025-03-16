@@ -28,10 +28,10 @@ class TestBoard(unittest.TestCase):
 
     def test_board_is_empty(self):
         """Test that an empty board is correctly identified."""
-        self.assertTrue(self.board.board_is_empty())
+        self.assertTrue(self.board.is_board_empty())
 
         self.board.cells[7][7] = self.cell_A
-        self.assertFalse(self.board.board_is_empty())
+        self.assertFalse(self.board.is_board_empty())
 
     def test_get_cell(self):
         """Test retrieving a specific cell."""
