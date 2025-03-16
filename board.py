@@ -167,7 +167,7 @@ class Board:
 
         return series
 
-    def board_is_empty(self) -> bool:
+    def is_board_empty(self) -> bool:
         for row in self.cells:
             for cell in row:
                 if cell.tile is not None:
@@ -188,7 +188,7 @@ class Board:
                     raise ValueError(f"Invalid cell placement {cell}")
 
         return self.cell_in_series_touches_tile(word.cells) or (
-            self.board_is_empty() and self.word_intersects_center(word)
+            self.is_board_empty() and self.word_intersects_center(word)
         )
 
     def add_word(self, word: Word) -> None:

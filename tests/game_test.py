@@ -40,7 +40,7 @@ class TestGame(unittest.TestCase):
 
     def test_get_possible_words_on_empty_board(self):
         """Test that possible words are found when the board is empty."""
-        self.board.board_is_empty = MagicMock(return_value=True)
+        self.board.is_board_empty = MagicMock(return_value=True)
         self.board.get_empty_board_series = MagicMock(return_value=[self.cell_C, self.cell_A, self.cell_T])
 
         possible_words = self.game.get_possible_words()
@@ -48,7 +48,7 @@ class TestGame(unittest.TestCase):
 
     def test_get_possible_words_on_non_empty_board(self):
         """Test that words are found when the board has existing tiles."""
-        self.board.board_is_empty = MagicMock(return_value=False)
+        self.board.is_board_empty = MagicMock(return_value=False)
         self.board.get_series = MagicMock(return_value=[self.cell_C, self.cell_A, self.cell_T])
 
         possible_words = self.game.get_possible_words()

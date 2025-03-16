@@ -17,10 +17,8 @@ class Game:
     def get_possible_words(self) -> List[Word]:
         valid_words = []
 
-        board_is_empty = self.board.is_board_empty()
-
         for series_length in range(len(self.rack.tiles), 0, -1):
-            if board_is_empty:
+            if self.board.is_board_empty():
                 for word in self.find_words_for_series(self.board.get_empty_board_series(series_length)):
                     valid_words.append(word)
             else:
@@ -92,29 +90,30 @@ class Game:
         valid_words = []
 
         for word in self.dictionary.search_with_pattern("".join(str(cell) for cell in series)):
-            rack_copy = Rack(self.rack.tiles.copy())
+            rack_dict = {tile.letter: tile.score for tile in self.rack.tiles}
+
             cells = []
             for i, letter in enumerate(word):
-                if letter not in rack_copy.get_letters() and series[i].get_letter_string() != letter:
-                    if "?" in rack_copy.get_letters():
-                        rack_tile = rack_copy.pop_tile("?")
+                if letter not in rack_dict and series[i].get_letter_string() != letter:
+                    if "?" in rack_dict:
+                        score = rack_dict.pop("?")
                         cells.append(
                             Cell(
                                 series[i].row,
                                 series[i].col,
-                                Tile(letter, rack_tile.score),
+                                Tile(letter, score),
                                 series[i].multiplier,
                             )
                         )
                         continue
                     break
                 if series[i].get_letter_string() != letter:
-                    rack_tile = rack_copy.pop_tile(letter)
+                    score = rack_dict.pop(letter)
                     cells.append(
                         Cell(
                             series[i].row,
                             series[i].col,
-                            Tile(letter, rack_tile.score),
+                            Tile(letter, score),
                             series[i].multiplier,
                         )
                     )

@@ -40,17 +40,14 @@ class Rack:
                 cls=RackEncoder,
             )
 
-    def pop_tile(self, letter: str) -> Tile:
-        for tile in self.tiles:
-            if tile.letter == letter:
-                self.tiles.remove(tile)
-                return tile
-
     def get_letters(self):
         return [tile.letter for tile in self.tiles]
+
+    def get_scores(self):
+        return [tile.score for tile in self.tiles]
 
     def print_letters(self):
         print(" ".join(self.get_letters()))
 
     def print_scores(self):
-        print(" ".join([str(tile.score) for tile in self.tiles]))
+        print(" ".join(str(score) for score in self.get_scores()))

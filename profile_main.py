@@ -17,7 +17,7 @@ prof.dump_stats("profile_output.prof")
 
 with open("profile_output.txt", "w") as stream:
     stats = pstats.Stats("profile_output.prof", stream=stream)
-    stats.sort_stats("cumtime")
+    stats.sort_stats("tottime")
     stats.print_stats()
 
 stats = pstats.Stats("profile_output.prof")
