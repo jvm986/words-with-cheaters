@@ -1,3 +1,5 @@
+import concurrent.futures
+
 import cv2
 import numpy as np
 import pytesseract
@@ -222,27 +224,41 @@ class Parser:
         board_cell_images = self.crop_tile_images(board_image)
         rack_tile_images = self.crop_tile_images(rack_image)
 
-        board_cells = [[None for _ in board_cell_images] for _ in board_cell_images[0]]
+        board_cells = [[None for _ in range(len(board_cell_images[0]))] for _ in range(len(board_cell_images))]
 
-        for row_idx, _ in enumerate(board_cell_images):
-            for col_idx, cell in enumerate(board_cell_images[row_idx]):
-                if self.is_tile_empty(cell):
-                    board_cells[row_idx][col_idx] = Cell(row_idx, col_idx)
-                    continue
+        def process_board_tile(row_idx, col_idx, cell):
+            if self.is_tile_empty(cell):
+                return row_idx, col_idx, Cell(row_idx, col_idx)
+            letter, score = self.parse_tile(cell, model)
+            return row_idx, col_idx, Cell.from_parsed_cell(letter, score, row_idx, col_idx)
 
-                letter, score = self.parse_tile(cell, model)
-                board_cells[row_idx][col_idx] = Cell.from_parsed_cell(letter, score, row_idx, col_idx)
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = []
+            for row_idx, row in enumerate(board_cell_images):
+                for col_idx, cell in enumerate(row):
+                    futures.append(executor.submit(process_board_tile, row_idx, col_idx, cell))
+
+            for future in concurrent.futures.as_completed(futures):
+                row_idx, col_idx, cell_obj = future.result()
+                board_cells[row_idx][col_idx] = cell_obj
 
         board = Board(board_cells)
 
         rack_tiles = []
 
-        for cell in rack_tile_images[0]:
+        def process_rack_tile(cell):
             if self.is_tile_empty(cell):
-                continue
+                return None
             letter, score = self.parse_tile(cell, model)
-            if letter:
-                rack_tiles.append(Tile(letter, score))
+            return Tile(letter, score) if letter else None
+
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [executor.submit(process_rack_tile, cell) for cell in rack_tile_images[0]]
+
+            for future in concurrent.futures.as_completed(futures):
+                tile = future.result()
+                if tile:
+                    rack_tiles.append(tile)
 
         rack = Rack(rack_tiles)
 
