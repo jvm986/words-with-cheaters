@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 from board import Board, Direction
 from cell import Cell
@@ -16,10 +16,13 @@ class Game:
 
     def get_possible_words(self) -> List[Word]:
         valid_words: List[Word] = []
+        unusable_series: Set[str] = set()
 
         for series_length in range(len(self.rack.tiles), 0, -1):
             if self.board.is_board_empty():
-                for word in self.find_words_for_series(self.board.get_empty_board_series(series_length)):
+                for word in self.find_words_for_series(
+                    self.board.get_empty_board_series(series_length), unusable_series
+                ):
                     valid_words.append(word)
             else:
                 for row in range(self.board.rows):
@@ -28,14 +31,14 @@ class Game:
                             if col > 0 and str(self.board.get_cell(row, col - 1)) != "-":
                                 continue
                             series = self.board.get_series(row, col, series_length, Direction.HORIZONTAL)
-                            for word in self.find_words_for_series(series):
+                            for word in self.find_words_for_series(series, unusable_series):
                                 valid_words.append(word)
 
                         if row + series_length <= self.board.rows:
                             if row > 0 and str(self.board.get_cell(row - 1, col)) != "-":
                                 continue
                             series = self.board.get_series(row, col, series_length, Direction.VERTICAL)
-                            for word in self.find_words_for_series(series):
+                            for word in self.find_words_for_series(series, unusable_series):
                                 valid_words.append(word)
 
         return valid_words
@@ -86,13 +89,17 @@ class Game:
 
         return sorted(scored_words, key=lambda x: x[1], reverse=True)
 
-    def find_words_for_series(self, series: List[Cell]) -> List[Word]:
+    def find_words_for_series(self, series: List[Cell], unusable_series: Set[str]) -> List[Word]:
         valid_words: List[Word] = []
+        series_str = "".join(str(cell) for cell in series)
 
-        for word in self.dictionary.search_with_pattern("".join(str(cell) for cell in series)):
+        for word in self.dictionary.search_with_pattern(series_str):
             rack_dict = {tile.letter: tile.score for tile in self.rack.tiles}
-
             cells: List[Cell] = []
+
+            if series_str + word in unusable_series:
+                continue
+
             for i, letter in enumerate(word):
                 series_letter_string = series[i].get_letter_string()
                 if letter not in rack_dict and series_letter_string != letter:
@@ -107,6 +114,7 @@ class Game:
                             )
                         )
                         continue
+                    unusable_series.add(series_str + word)
                     break
                 if series_letter_string != letter:
                     score = rack_dict.pop(letter)

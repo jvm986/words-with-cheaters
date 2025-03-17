@@ -73,7 +73,7 @@ class TestGame(unittest.TestCase):
         """Test that words can be found given a series of cells."""
         series = [self.cell_C, self.cell_A, self.cell_T]
 
-        valid_words = self.game.find_words_for_series(series)
+        valid_words = self.game.find_words_for_series(series, set())
         self.assertTrue(any(str(word) == "CAT" for word in valid_words))
 
     def test_validate_board(self):

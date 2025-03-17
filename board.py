@@ -85,19 +85,17 @@ class Board:
 
     def get_words_from_series(self, series: List[Cell]) -> List[Word]:
         words: List[Word] = []
-        current_word: Optional[List[Cell]] = None
+        current_word: List[Cell] = []
 
         for cell in series:
             if cell.tile:
-                if current_word is None:
-                    current_word = []
                 current_word.append(cell)
             elif current_word:
                 if len(current_word) > 1:
                     words.append(Word(current_word))
-                current_word = None
+                current_word = []
 
-        if current_word and len(current_word) > 1:
+        if len(current_word) > 1:
             words.append(Word(current_word))
 
         return words

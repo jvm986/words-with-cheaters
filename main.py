@@ -18,7 +18,9 @@ parser = Parser()
 dictionary = Dictionary(DICTIONARY_FILE)
 
 
-def process(screenshot_name: str, model: Optional[str] = None, solve: bool = False, reparse: bool = False) -> None:
+def process(
+    screenshot_name: str, model: Optional[str] = None, solve: bool = False, reparse: bool = False, debug: bool = False
+) -> None:
     logging.info(f"Processing screenshot: {screenshot_name}")
 
     screenshot_path = os.path.join(SCREENSHOT_DIR, screenshot_name)
@@ -39,14 +41,16 @@ def process(screenshot_name: str, model: Optional[str] = None, solve: bool = Fal
 
     game = Game(dictionary, board, rack)
 
-    try:
-        game.validate_board()
-    except ValueError as e:
+    if debug:
         board.print_letters()
         board.print_scores()
         board.print_mutlipliers()
         rack.print_letters()
         rack.print_scores()
+
+    try:
+        game.validate_board()
+    except ValueError as e:
         logging.error(f"Board validation failed: {e}")
         return
 
@@ -74,11 +78,12 @@ def main() -> None:
     )
     parser.add_argument("--solve", action="store_true", help="Enable solving mode")
     parser.add_argument("--reparse", action="store_true", help="Reparse the screenshot(s)")
+    parser.add_argument("--debug", action="store_true", help="Enable debug mode")
 
     args = parser.parse_args()
 
     if args.screenshot:
-        process(args.screenshot, args.model, args.solve, args.reparse)
+        process(args.screenshot, args.model, args.solve, args.reparse, args.debug)
     else:
         for screenshot_name in os.listdir(SCREENSHOT_DIR):
             process(screenshot_name, args.model, args.solve)
