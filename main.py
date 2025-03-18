@@ -63,6 +63,8 @@ def process(
         board.print_letters()
         rack.print_letters()
 
+    logging.info(f"Finished processing screenshot: {screenshot_name}")
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Words With Friends Solver")
