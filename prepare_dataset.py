@@ -1,106 +1,73 @@
-import logging
-import os
-from typing import List, Tuple
-import uuid
-from collections import Counter, defaultdict
-from parser import CV2Image, Parser
+"""Export Tesseract crops from labelled training fixtures (never evaluation fixtures)."""
+
+import argparse
+import hashlib
+from pathlib import Path
+from typing import Iterator
 
 import cv2
 
-from board import Board
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
-SCREENSHOTS_DIR = "screenshots"
-DATASET_DIR = os.path.join("dataset", "training")
-parser = Parser()
-
-letter_counts: Counter[str] = Counter()
-all_letters: List[Tuple[CV2Image, str]] = []
-
-logging.info("Scanning screenshots to count letter occurrences...")
-
-for screenshot_dir in os.listdir(SCREENSHOTS_DIR):
-    screenshot_path = os.path.join(SCREENSHOTS_DIR, screenshot_dir, "screenshot.png")
-    board = Board.load_board_from_file(os.path.join(SCREENSHOTS_DIR, screenshot_dir, "board.json"))
-
-    screenshot_image = cv2.imread(screenshot_path)
-    board_image, rack_image = parser.crop_board_and_rack_images(screenshot_image)
-
-    board_cells = parser.crop_tile_images(board_image)
-    rack_cells = parser.crop_tile_images(rack_image)
-
-    for row_idx, row in enumerate(board_cells):
-        for col_idx, cell_image in enumerate(row):
-            binarized_tile_image = parser.binarize_image(cell_image)
-            cell = board.get_cell(row_idx, col_idx)
-
-            if cell.tile:
-                letter_image, score_image = parser.crop_letter_and_score_images(cv2.bitwise_not(binarized_tile_image))
-                cropped_letter_image = parser.crop_white_background(letter_image)
-                cropped_score_image = parser.crop_white_background(score_image)
-
-                all_letters.append((cropped_letter_image, cell.tile.letter))
-                letter_counts[cell.tile.letter] += 1
-
-                if cell.tile.score == 0:
-                    continue
-
-                all_letters.append((cropped_score_image, str(cell.tile.score)))
-                letter_counts[str(cell.tile.score)] += 1
-                continue
-
-            cropped_tile_image = parser.crop_white_background(binarized_tile_image)
-            if cell.multiplier:
-                all_letters.append((cropped_tile_image, cell.multiplier.name))
-                letter_counts[cell.multiplier.name] += 1
-                continue
-
-            if board.is_cell_middle(row_idx, col_idx):
-                all_letters.append((cropped_tile_image, "Ø"))
-                letter_counts["Ø"] += 1
-
-if letter_counts:
-    min_letter_count = max(min(letter_counts.values()), 100)
-    logging.info(f"Adjusted minimum letter count: {min_letter_count}")
-else:
-    min_letter_count = 100
-    logging.warning("No letters found in dataset. Nothing to save.")
-
-logging.info("Letter frequencies before saving:")
-for letter, count in letter_counts.items():
-    logging.info(f"{letter}: {count}")
-
-saved_counts: defaultdict[str, int] = defaultdict(int)
+from parser import CV2Image, Parser
+from recognition_benchmark import load_fixtures
 
 
-def write_image_and_gt(image: CV2Image, text: str) -> None:
-    """Save the image and ground truth only if below the minimum threshold."""
-    if saved_counts[text] >= min_letter_count:
-        logging.debug(f"Skipping '{text}' (limit reached: {min_letter_count})")
-        return
-
-    id = uuid.uuid4()
-    image_path = os.path.join(DATASET_DIR, f"{text}_{id}.png")
-    gt_text_path = os.path.join(DATASET_DIR, f"{text}_{id}.gt.txt")
-    box_path = os.path.join(DATASET_DIR, f"{text}_{id}.box")
-
-    cv2.imwrite(image_path, image)
-
-    with open(gt_text_path, "w") as f:
-        f.write(text)
-
-    h, w = image.shape[:2]
-    box_data = f"{text} 0 0 {w} {h} 0\n"
-    with open(box_path, "w") as f:
-        f.write(box_data)
-
-    saved_counts[text] += 1
-    logging.debug(f"Saved '{text}' (Total: {saved_counts[text]}/{min_letter_count})")
+def tile_samples(parser: Parser, image: CV2Image, label: str) -> Iterator[tuple[CV2Image, str]]:
+    binary = parser.binarize_image(image)
+    if ":" in label:
+        letter, score = label.split(":")
+        # A rack blank has no printed glyph to train. Played blanks still have a letter.
+        if letter == "?":
+            return
+        letter_image, score_image = parser.crop_letter_and_score_images(cv2.bitwise_not(binary))
+        yield parser.crop_white_background(letter_image), letter
+        if score != "0":
+            yield parser.crop_white_background(score_image), score
+    elif label != ".":
+        yield parser.crop_white_background(binary), label
 
 
-logging.info("Saving images to dataset...")
-for image, text in all_letters:
-    write_image_and_gt(image, text)
+def prepare(fixtures_dir: Path, output: Path) -> int:
+    fixtures = load_fixtures(fixtures_dir)
+    training = [fixture for fixture in fixtures if fixture["split"] == "train"]
+    if not training:
+        raise ValueError("No train fixtures. Baseline, validation and test fixtures are excluded from training.")
+    # A fresh directory prevents stale crops from silently leaking across split changes.
+    if output.exists() and any(output.iterdir()):
+        raise ValueError("Training output must be empty; choose a new output directory")
+    parser = Parser()
+    samples: list[tuple[CV2Image, str]] = []
+    for fixture in training:
+        image = cv2.imread(fixture["image_path"])
+        if image is None:
+            raise ValueError(f"Cannot read {fixture['id']}")
+        for region in ("board", "rack"):
+            x1, y1, x2, y2 = fixture[f"{region}_bounds"]
+            cells = parser.crop_tile_images(image[y1:y2, x1:x2])
+            labels = fixture[region] if region == "board" else [fixture["rack_slots"]]
+            if len(cells) != len(labels) or any(len(row) != len(label_row) for row, label_row in zip(cells, labels)):
+                raise ValueError(f"Crop/label dimensions disagree for {fixture['id']} {region}")
+            for row, label_row in zip(cells, labels):
+                for cell, label in zip(row, label_row):
+                    samples.extend(tile_samples(parser, cell, label))
+    output.mkdir(parents=True, exist_ok=True)
+    for index, (crop, label) in enumerate(samples):
+        digest = hashlib.sha256(crop.tobytes() + label.encode()).hexdigest()[:12]
+        stem = output / f"{index:06d}_{digest}"
+        if not cv2.imwrite(str(stem) + ".png", crop):
+            raise ValueError("Failed writing training crop")
+        Path(str(stem) + ".gt.txt").write_text(label + "\n")
+        height, width = crop.shape[:2]
+        Path(str(stem) + ".box").write_text(f"{label} 0 0 {width} {height} 0\n")
+    return len(samples)
 
-logging.info("Processing complete.")
+
+def main() -> None:
+    cli = argparse.ArgumentParser(description=__doc__)
+    cli.add_argument("--fixtures", type=Path, default=Path("benchmarks/fixtures"))
+    cli.add_argument("--output", type=Path, default=Path("dataset/training"))
+    args = cli.parse_args()
+    print(f"Wrote {prepare(args.fixtures, args.output)} training crops to {args.output}")
+
+
+if __name__ == "__main__":
+    main()
