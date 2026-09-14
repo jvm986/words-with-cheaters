@@ -40,6 +40,17 @@ jobs:
       - name: Run tests
         run: python -m unittest discover -v -s tests -p '*_test.py'
 
+      - name: Run recognition benchmark
+        run: python recognition_benchmark.py
+
+      - name: Upload recognition report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: recognition-benchmark
+          path: benchmark-output/
+          if-no-files-found: warn
+
       - name: Run Profiler
         run: python profile_main.py
 

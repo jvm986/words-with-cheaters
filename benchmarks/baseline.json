@@ -1,0 +1,117 @@
+{
+  "metadata": {
+    "parser_sha256": "51e68eceec0b7e1345dd3c87235cbfdeff2f85c38023d581fb022d2fa38a6a13",
+    "numpy": "2.2.3",
+    "pytesseract": "0.3.13",
+    "model_sha256": "6e20634d5c2612e4bf155731eb293aecf210b8c863cc5d4a81195835ff6d92a3",
+    "annotation_hashes": {
+      "ios-example": "cbe691dc11fd8d020ffcb50f68929116e6abd93c2ea717c78056bc7cc87f7b74"
+    },
+    "model": "words-with-cheaters",
+    "python": "3.13.3",
+    "opencv": "4.11.0",
+    "tesseract": "5.5.0",
+    "fixture_hashes": {
+      "ios-example": "93c599110f29e7ded42d543f335f6c07ba0c161c88fd2b535c9f5650e3298421"
+    }
+  },
+  "summary_by_split": {
+    "baseline": {
+      "screenshots": 1,
+      "rejected": 0,
+      "whole_position_correct": 1,
+      "detection_success": {
+        "board_bounds": 1,
+        "rack_bounds": 1
+      },
+      "accuracy_on_parsed": {
+        "board_cells": {
+          "correct": 225,
+          "total": 225,
+          "accuracy": 1.0
+        },
+        "premiums": {
+          "correct": 43,
+          "total": 43,
+          "accuracy": 1.0
+        },
+        "blank_detection": {
+          "correct": 64,
+          "total": 64,
+          "accuracy": 1.0
+        },
+        "occupied_tiles": {
+          "correct": 64,
+          "total": 64,
+          "accuracy": 1.0
+        },
+        "blanks": {
+          "correct": 2,
+          "total": 2,
+          "accuracy": 1.0
+        },
+        "rack_cells": {
+          "correct": 7,
+          "total": 7,
+          "accuracy": 1.0
+        }
+      },
+      "seconds": 15.206243249995168
+    }
+  },
+  "results": [
+    {
+      "id": "ios-example",
+      "split": "baseline",
+      "group": "example-game",
+      "counts": {
+        "board_cells": [
+          225,
+          225
+        ],
+        "premiums": [
+          43,
+          43
+        ],
+        "blank_detection": [
+          64,
+          64
+        ],
+        "occupied_tiles": [
+          64,
+          64
+        ],
+        "blanks": [
+          2,
+          2
+        ],
+        "rack_cells": [
+          7,
+          7
+        ]
+      },
+      "errors": [],
+      "exact": true,
+      "status": "parsed",
+      "seconds": 15.206243249995168,
+      "detection": {
+        "board_bounds": true,
+        "rack_bounds": true
+      },
+      "detected_bounds": {
+        "board_bounds": [
+          0,
+          609,
+          1179,
+          1788
+        ],
+        "rack_bounds": [
+          11,
+          2099,
+          1167,
+          2268
+        ]
+      }
+    }
+  ]
+}

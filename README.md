@@ -56,13 +56,21 @@ The way it works is to check every valid series on the board (a valid series inc
 
 ### OCR Training
 
-To improve the OCR training, first prepare a dataset for the OCR trainer:
-
-Set up enough `screenshot.png` files with accurate `board.json` and `rack.json` files in the `screenshots` directory. Then run the `prepare_dataset.py` script to generate the training data:
+Recognition accuracy is measured with labelled screenshot fixtures. Run the benchmark and open its visual report:
 
 ```bash
-python prepare_dataset.py
+TESSDATA_PREFIX="$PWD/dataset" python recognition_benchmark.py
 ```
+
+See [the benchmark guide](benchmarks/README.md) for fixture labels, metrics, split rules, and the current baseline's limitations.
+
+To prepare training data, add reviewed fixtures explicitly assigned to the `train` split, then run:
+
+```bash
+python prepare_dataset.py --fixtures benchmarks/fixtures --output dataset/training
+```
+
+Both board and rack crops are exported. The output directory must be empty. Baseline, validation, and test fixtures are excluded; the single bundled baseline screenshot alone is insufficient for training export.
 
 Clone `tesstrain` next to this project:
 

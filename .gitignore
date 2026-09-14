@@ -11,3 +11,4 @@ screenshots/example/*.json
 
 profile_*.txt
 profile_*.prof
+benchmark-output/
