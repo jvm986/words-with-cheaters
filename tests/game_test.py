@@ -40,18 +40,19 @@ class TestGame(unittest.TestCase):
 
     def test_get_possible_words_on_empty_board(self):
         """Test that possible words are found when the board is empty."""
-        self.board.is_board_empty = MagicMock(return_value=True)
-        self.board.get_empty_board_series = MagicMock(return_value=[self.cell_C, self.cell_A, self.cell_T])
-
-        possible_words = self.game.get_possible_words()
+        dictionary = Dictionary()
+        dictionary.insert("CAT")
+        game = Game(dictionary, self.board, Rack([self.tile_C, self.tile_A, self.tile_T]))
+        possible_words = game.get_possible_words()
         self.assertTrue(any(str(word) == "CAT" for word in possible_words))
 
     def test_get_possible_words_on_non_empty_board(self):
-        """Test that words are found when the board has existing tiles."""
-        self.board.is_board_empty = MagicMock(return_value=False)
-        self.board.get_series = MagicMock(return_value=[self.cell_C, self.cell_A, self.cell_T])
-
-        possible_words = self.game.get_possible_words()
+        dictionary = Dictionary()
+        dictionary.insert("CAT")
+        self.board.cells[7][7] = self.cell_C
+        self.board.cells[7][8] = self.cell_A
+        game = Game(dictionary, self.board, self.rack)
+        possible_words = game.get_possible_words()
         self.assertTrue(any(str(word) == "CAT" for word in possible_words))
 
     def test_get_scored_possible_words(self):

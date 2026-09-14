@@ -128,7 +128,7 @@ class Board:
         count = 0
 
         if direction == Direction.HORIZONTAL:
-            for i in range(self.rows):
+            for i in range(self.cols):
                 if i + col < self.cols:
                     cell = self.cells[row][col + i]
                     if cell.tile is None and count >= to_place:
@@ -139,7 +139,7 @@ class Board:
 
         elif direction == Direction.VERTICAL:
             for i in range(self.rows):
-                if i + row < self.cols:
+                if i + row < self.rows:
                     cell = self.cells[row + i][col]
                     if cell.tile is None and count >= to_place:
                         break

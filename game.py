@@ -18,28 +18,26 @@ class Game:
         valid_words: List[Word] = []
         unusable_series: Set[str] = set()
 
+        empty_board = self.board.is_board_empty()
         for series_length in range(len(self.rack.tiles), 0, -1):
-            if self.board.is_board_empty():
-                for word in self.find_words_for_series(
-                    self.board.get_empty_board_series(series_length), unusable_series
-                ):
-                    valid_words.append(word)
-            else:
-                for row in range(self.board.rows):
-                    for col in range(self.board.cols):
-                        if col + series_length <= self.board.cols:
-                            if col > 0 and str(self.board.get_cell(row, col - 1)) != "-":
+            for row in range(self.board.rows):
+                for col in range(self.board.cols):
+                    for direction in Direction:
+                        dr, dc = (0, 1) if direction == Direction.HORIZONTAL else (1, 0)
+                        if row - dr >= 0 and col - dc >= 0:
+                            if self.board.get_cell(row - dr, col - dc).tile is not None:
                                 continue
-                            series = self.board.get_series(row, col, series_length, Direction.HORIZONTAL)
-                            for word in self.find_words_for_series(series, unusable_series):
-                                valid_words.append(word)
-
-                        if row + series_length <= self.board.rows:
-                            if row > 0 and str(self.board.get_cell(row - 1, col)) != "-":
+                        series = self.board.get_series(row, col, series_length, direction)
+                        if not series:
+                            continue
+                        if empty_board:
+                            if not any(
+                                cell.row == self.board.rows // 2 and cell.col == self.board.cols // 2 for cell in series
+                            ):
                                 continue
-                            series = self.board.get_series(row, col, series_length, Direction.VERTICAL)
-                            for word in self.find_words_for_series(series, unusable_series):
-                                valid_words.append(word)
+                        elif not self.board.cell_in_series_touches_tile(series):
+                            continue
+                        valid_words.extend(self.find_words_for_series(series, unusable_series))
 
         return valid_words
 
@@ -73,12 +71,14 @@ class Game:
             all_words_after = board_copy.get_board_words()
             new_words = [word for word in all_words_after if word not in existing_words]
 
-            total_score = 0
-
-            for new_word in new_words:
-                total_score += new_word.get_score()
-                if self.count_placed_tiles([new_word]) == 7:
-                    total_score += 40
+            placed_positions = {
+                (cell.row, cell.col) for cell in word.cells if self.board.get_cell(cell.row, cell.col).tile is None
+            }
+            if not new_words or not placed_positions:
+                continue
+            total_score = sum(new_word.get_score(placed_positions) for new_word in new_words)
+            if len(placed_positions) == 7:
+                total_score += 40
 
             try:
                 self.validate_board(board_copy)
@@ -94,42 +94,43 @@ class Game:
         series_str = "".join(str(cell) for cell in series)
 
         for word in self.dictionary.search_with_pattern(series_str):
-            rack_dict = {tile.letter: tile.score for tile in self.rack.tiles}
-            cells: List[Cell] = []
-
-            if series_str + word in unusable_series:
+            cache_key = series_str + word
+            if cache_key in unusable_series:
                 continue
+            rack_counts: Dict[Tuple[str, int], int] = {}
+            for tile in self.rack.tiles:
+                key = (tile.letter, tile.score)
+                rack_counts[key] = rack_counts.get(key, 0) + 1
+            cells: List[Cell] = []
+            before = len(valid_words)
 
-            for i, letter in enumerate(word):
-                series_letter_string = series[i].get_letter_string()
-                if letter not in rack_dict and series_letter_string != letter:
-                    if "?" in rack_dict:
-                        score = rack_dict.pop("?")
-                        cells.append(
-                            Cell(
-                                series[i].row,
-                                series[i].col,
-                                Tile(letter, score),
-                                series[i].multiplier,
-                            )
-                        )
+            def place(index: int) -> None:
+                if index == len(word):
+                    valid_words.append(Word(list(cells)))
+                    return
+                cell = series[index]
+                letter = word[index]
+                if cell.tile is not None:
+                    cells.append(cell)
+                    place(index + 1)
+                    cells.pop()
+                    return
+                # Explore natural tiles and blanks: their positions affect premiums and crosswords.
+                for key, count in rack_counts.items():
+                    rack_letter, score = key
+                    if count == 0 or rack_letter not in (letter, "?"):
                         continue
-                    unusable_series.add(series_str + word)
-                    break
-                if series_letter_string != letter:
-                    score = rack_dict.pop(letter)
+                    rack_counts[key] -= 1
                     cells.append(
-                        Cell(
-                            series[i].row,
-                            series[i].col,
-                            Tile(letter, score),
-                            series[i].multiplier,
-                        )
+                        Cell(cell.row, cell.col, Tile(letter, 0 if rack_letter == "?" else score), cell.multiplier)
                     )
-                else:
-                    cells.append(series[i])
-                if i == len(word) - 1:
-                    valid_words.append(Word(cells))
+                    place(index + 1)
+                    cells.pop()
+                    rack_counts[key] += 1
+
+            place(0)
+            if len(valid_words) == before:
+                unusable_series.add(cache_key)
 
         return valid_words
 
