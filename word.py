@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Optional, Set, Tuple
 
 from cell import Cell
 
@@ -22,13 +22,16 @@ class Word:
             return False
         return self.cells == value.cells
 
-    def get_score(self) -> int:
+    def get_score(self, placed_positions: Optional[Set[Tuple[int, int]]] = None) -> int:
         score = 0
         word_multiplier = 1
         for cell in self.cells:
-            letter_multiplier = cell.multiplier.letter_multiplier() if cell.multiplier else 1
+            multiplier = (
+                cell.multiplier if placed_positions is None or (cell.row, cell.col) in placed_positions else None
+            )
+            letter_multiplier = multiplier.letter_multiplier() if multiplier else 1
             letter_score = cell.tile.score * letter_multiplier if cell.tile else 0
             score += letter_score
-            word_multiplier *= cell.multiplier.word_multiplier() if cell.multiplier else 1
+            word_multiplier *= multiplier.word_multiplier() if multiplier else 1
 
         return score * word_multiplier
