@@ -21,11 +21,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.x"
+          # Keep the interpreter aligned with the README and pinned dependencies.
+          python-version: "3.12"
+          cache: "pip"
 
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          python -m pip install --only-binary=:all: -r requirements.txt
           sudo apt update
           sudo apt install -y tesseract-ocr
 
